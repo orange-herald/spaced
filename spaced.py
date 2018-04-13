@@ -9,6 +9,7 @@ import datetime
 import subprocess
 import smtplib
 from email.mime.text import MIMEText
+from smtplib import SMTPAuthenticationError
 
 
 def get_free_disk_space():
@@ -27,17 +28,41 @@ def log_data(free_space, disk_status):
 
 
 def send_low_disk_alert():
-    print('Sad face!')
-    content = open('message.txt', 'rb')
+    print('DEBUG: Low disk space')
     
-    
+    # Configure email server and connect
+    SENDER = 'testymctesterqc@gmail.com'
+    PASSWORD = 'queryclick'
+    RECIPIENTS = 'steven@queryclick.com'
+    SMTP_SERVER = 'smtp.gmail.com:465'
 
+
+    # Configure message headers & body
+    toaddr = RECIPIENTS
+
+    header = 'From: %s\n' % SENDER
+    header += 'To: %s\n' % RECIPIENTS
+    header += 'Subject: %s\n\n' % 'WARNING: Low disk space on MARIO'
+    message = """WARNING: DISK SPACE LOW"""
+    message = header + message
+
+    # Compose and attach message body
+    #try:
+    server = smtplib.SMTP(SMTP_SERVER)
+    server.ehlo()
+    server.starttls()
+    server.login(SENDER, PASSWORD)
+
+    server.sendmail(SENDER + '@gmail.com', toaddr, message)
+    print('Email sent')
+    server.quit()
+    #except Exception:
+    # print('Error sending email')
 
 
 def main():
-    REMAINING_DISK_SPACE_LIMIT = 25
+    REMAINING_DISK_SPACE_LIMIT = 100
     free_space = get_free_disk_space()
-    # print free_space
 
     if free_space > REMAINING_DISK_SPACE_LIMIT:
         log_data(free_space, 'GOOD')
