@@ -31,7 +31,7 @@ def send_low_disk_alert():
     print('DEBUG: Low disk space')
     
     # Configure email server and connect
-    SENDER = 'testymctesterqc@gmail.com'
+    SENDER = 'testytesterqc@gmail.com'
     PASSWORD = 'queryclick'
     RECIPIENTS = 'steven@queryclick.com'
     SMTP_SERVER = 'smtp.gmail.com:465'
@@ -48,12 +48,13 @@ def send_low_disk_alert():
 
     # Compose and attach message body
     #try:
-    server = smtplib.SMTP(SMTP_SERVER)
+    server = smtplib.SMTP('smtp.gmail.com', 587)
     server.ehlo()
     server.starttls()
+    server.ehlo()
     server.login(SENDER, PASSWORD)
 
-    server.sendmail(SENDER + '@gmail.com', toaddr, message)
+    server.sendmail(SENDER, toaddr, message)
     print('Email sent')
     server.quit()
     #except Exception:
