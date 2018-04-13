@@ -9,7 +9,6 @@ import datetime
 import subprocess
 import smtplib
 from email.mime.text import MIMEText
-from smtplib import SMTPAuthenticationError
 
 
 def get_free_disk_space():
@@ -23,8 +22,16 @@ def get_free_disk_space():
 
 def log_data(free_space, disk_status):
     timestamp = datetime.datetime.now()
-    update = "{:%Y-%m-%d %H:%M:%S} : FREE_DISK SPACE: {}%. STATUS: {}."
-    print (update.format(timestamp, free_space, disk_status))
+    update = "{:%Y-%m-%d %H:%M:%S} : FREE_DISK SPACE: {}%. STATUS: {}.\n"
+    log_entry = update.format(timestamp, free_space, disk_status)
+
+    try:
+        log_file = open('disk_space.log', 'a')
+        log_file.write(log_entry)
+        print('Log file updated')
+        log_file.close()
+    except:
+        print('Error writing to log file')
 
 
 def send_low_disk_alert():
@@ -34,12 +41,10 @@ def send_low_disk_alert():
     SENDER = 'testytesterqc@gmail.com'
     PASSWORD = 'queryclick'
     RECIPIENTS = 'steven@queryclick.com'
-    SMTP_SERVER = 'smtp.gmail.com:465'
+    SMTP_SERVER = 'smtp.gmail.com:587'
 
 
     # Configure message headers & body
-    toaddr = RECIPIENTS
-
     header = 'From: %s\n' % SENDER
     header += 'To: %s\n' % RECIPIENTS
     header += 'Subject: %s\n\n' % 'WARNING: Low disk space on MARIO'
@@ -47,18 +52,15 @@ def send_low_disk_alert():
     message = header + message
 
     # Compose and attach message body
-    #try:
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-    server.ehlo()
-    server.starttls()
-    server.ehlo()
-    server.login(SENDER, PASSWORD)
-
-    server.sendmail(SENDER, toaddr, message)
-    print('Email sent')
-    server.quit()
-    #except Exception:
-    # print('Error sending email')
+    try:
+        server = smtplib.SMTP(SMTP_SERVER)
+        server.starttls()
+        server.login(SENDER, PASSWORD)
+        server.sendmail(SENDER, RECIPIENTS, message)
+        print('Email sent')
+        server.quit()
+    except:
+        print('Error sending email')
 
 
 def main():
