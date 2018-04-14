@@ -76,7 +76,7 @@ def send_low_disk_alert(disk_status):
     # Configure message headers & body
     header = 'From: %s\n' % SENDER
     header += 'To: %s\n' % RECIPIENTS
-    header += 'Subject: %s\n\n' % 'WARNING: Low disk space on MARIO'
+    header += 'Subject: WARNING: Low disk space on %s\n\n' % HOST_NAME
     message = disk_status
     message = header + message
 
