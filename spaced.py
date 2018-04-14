@@ -10,15 +10,17 @@ from os.path import expanduser
 
 import datetime
 import smtplib
+import socket
 import subprocess
 
-# DISK STATUS CODES
+# Disk status codes
 HEALTHY = 40
 CHECK = 25
 CRITICAL = 15
 
 # Get home dir of current user to set logfile path
 HOME_DIR = expanduser('~')
+HOST_NAME = socket.gethostname()
 
 
 def get_free_disk_space():
@@ -26,7 +28,6 @@ def get_free_disk_space():
     Get amount of disk space as %.
     :return free disk space as int
     """
-
     # Shell command to display disk usage for / mount point
     command = "findmnt / -DoUSE%".split()
     process = subprocess.Popen(command, stdout=subprocess.PIPE)
@@ -42,11 +43,10 @@ def log_and_report_disk_usage(free_space, disk_status):
     :disk_status as str
     :return void
     """
-
     LOG_FILE = HOME_DIR + '/disk_space.log'
     timestamp = datetime.datetime.now()
-    update = "{:%Y-%m-%d %H:%M:%S} : FREE DISK SPACE ON MARIO: {}%. STATUS: {}.\n"
-    log_entry = update.format(timestamp, free_space, disk_status)
+    update = "{:%Y-%m-%d %H:%M:%S} : FREE DISK SPACE ON {}: {}%. STATUS: {}.\n"
+    log_entry = update.format(timestamp, HOST_NAME, free_space, disk_status)
 
     try:
         log_file = open(LOG_FILE, 'a')
@@ -69,7 +69,7 @@ def send_low_disk_alert(disk_status):
     # Configure email server and connect
     SENDER = 'testytesterqc@gmail.com'
     PASSWORD = 'queryclick'
-    RECIPIENTS = 'steven@queryclick.com'
+    RECIPIENTS = 'stevenmacdiarmid@me.com'
     SMTP_SERVER = 'smtp.gmail.com:587'
 
 
