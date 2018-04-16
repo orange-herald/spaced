@@ -7,6 +7,7 @@ Server disk space monitor/alert
 from __future__ import print_function
 from email.mime.text import MIMEText
 from os.path import expanduser
+from sys import argv
 
 import datetime
 import smtplib
@@ -21,6 +22,8 @@ CRITICAL = 15
 # Get home dir of current user to set logfile path
 HOME_DIR = expanduser('~')
 HOST_NAME = socket.gethostname()
+DEFAULT_EMAIL_RECIPIENT = 'droids@queryclick.com'
+
 
 
 def get_free_disk_space():
@@ -36,11 +39,12 @@ def get_free_disk_space():
     return 100 - int(free_space)
 
 
-def log_and_report_disk_usage(free_space, disk_status):
+def log_and_report_disk_usage(free_space, disk_status, email_recipient):
     """
     Update log file with current disk utilisation and (optionally) send email alert.
     :param free_space as int
-    :disk_status as str
+    :param disk_status as str
+    :param email_recipient<optional> as str
     :return void
     """
     LOG_FILE = HOME_DIR + '/disk_space.log'
@@ -57,10 +61,10 @@ def log_and_report_disk_usage(free_space, disk_status):
         print('Error writing to log file')
 
     if disk_status != 'HEALTHY':
-        send_low_disk_alert(log_entry)
+        send_low_disk_alert(log_entry, email_recipient)
 
 
-def send_low_disk_alert(disk_status):
+def send_low_disk_alert(disk_status, email_recipient):
     """
     Send email alert if disk space below healthy level.
     :param disk_status as str
@@ -69,13 +73,12 @@ def send_low_disk_alert(disk_status):
     # Configure email server and connect
     SENDER = 'testytesterqc@gmail.com'
     PASSWORD = 'queryclick'
-    RECIPIENTS = 'stevenmacdiarmid@me.com'
     SMTP_SERVER = 'smtp.gmail.com:587'
 
 
     # Configure message headers & body
     header = 'From: %s\n' % SENDER
-    header += 'To: %s\n' % RECIPIENTS
+    header += 'To: %s\n' % email_recipient
     header += 'Subject: WARNING: Low disk space on %s\n\n' % HOST_NAME
     message = disk_status
     message = header + message
@@ -85,7 +88,7 @@ def send_low_disk_alert(disk_status):
         server = smtplib.SMTP(SMTP_SERVER)
         server.starttls()
         server.login(SENDER, PASSWORD)
-        server.sendmail(SENDER, RECIPIENTS, message)
+        server.sendmail(SENDER, email_recipient, message)
         print('Email sent')
         server.quit()
     except:
@@ -94,13 +97,19 @@ def send_low_disk_alert(disk_status):
 
 def main():
     free_space = get_free_disk_space()
-
-    if free_space > HEALTHY:
-        log_and_report_disk_usage(free_space, 'HEALTHY')
-    elif free_space < CRITICAL:
-        log_and_report_disk_usage(free_space, 'CRITICAL')
+    
+    # Has alternative email been provided as command-line argument?
+    if len(argv) > 1:
+        email_recipient = str(argv[1])
     else:
-        log_and_report_disk_usage(free_space, 'CHECK')
+        email_recipient = DEFAULT_EMAIL_RECIPIENT
+    
+    if free_space > HEALTHY:
+        log_and_report_disk_usage(free_space, 'HEALTHY', email_recipient)
+    elif free_space < CRITICAL:
+        log_and_report_disk_usage(free_space, 'CRITICAL', email_recipient)
+    else:
+        log_and_report_disk_usage(free_space, 'CHECK', email_recipient)
 
 
 if __name__ == "__main__":
