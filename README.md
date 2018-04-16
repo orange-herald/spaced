@@ -2,7 +2,7 @@
 > Python script to monitor and report on available server disk space.
 
 ## Description
-Linode's dashboards do not currently display the remaining disk space available on our various servers. Obviously this can outages if servers run out of space without alerting us.
+Linode's dashboards do not currently display the remaining disk space available on our various servers. Obviously this can cause outages if servers run out of space without alerting us.
 
 This Python script can be run manually or (preferably) via Cron on a user-defined schedule to log disk space and send warning emails if necessary.
 
