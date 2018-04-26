@@ -22,6 +22,11 @@ CRITICAL = 15
 # Get home dir of current user to set logfile path
 HOME_DIR = expanduser('~')
 HOST_NAME = socket.gethostname()
+
+if HOST_NAME == 'localhost' or HOST_NAME == 'ubuntu':
+
+
+
 DEFAULT_EMAIL_RECIPIENT = 'droids@queryclick.com'
 
 
